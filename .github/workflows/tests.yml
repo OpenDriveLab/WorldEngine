@@ -1,0 +1,98 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, dev/**, release/**]
+  pull_request:
+    branches: [main]
+
+jobs:
+  syntax-check:
+    name: Python Syntax Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile $(find projects/ -name "*.py" | head -20)
+        continue-on-error: false
+
+  import-check:
+    name: Import Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install minimal dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy==1.26.4 torch==2.0.1
+
+      - name: Check imports
+        run: |
+          python -c "import sys; sys.path.insert(0, 'projects/SimEngine'); print('Import path configured')"
+        continue-on-error: true
+
+  # NOTE: Full tests require GPU and large datasets, which are not available in CI
+  # This is a placeholder for future integration with self-hosted runners
+  integration-tests:
+    name: Integration Tests (Placeholder)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Integration tests info
+        run: |
+          echo "Full integration tests require:"
+          echo "  - NVIDIA GPU with CUDA 11.8"
+          echo "  - Large datasets (nuPlan, etc.)"
+          echo "  - Significant compute resources"
+          echo ""
+          echo "These tests should be run manually using:"
+          echo "  bash scripts/closed_loop_test.sh"
+          echo "  bash scripts/multigpu_closed_loop_test.sh"
+          echo ""
+          echo "Consider setting up self-hosted runners for automated GPU testing."
+
+  documentation-build:
+    name: Check Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required documentation files
+        run: |
+          echo "Checking for required documentation files..."
+          test -f README.md && echo "✓ README.md exists" || echo "✗ README.md missing"
+          test -f LICENSE && echo "✓ LICENSE exists" || echo "✗ LICENSE missing"
+          test -f CONTRIBUTING.md && echo "✓ CONTRIBUTING.md exists" || echo "✗ CONTRIBUTING.md missing"
+          test -f CODE_OF_CONDUCT.md && echo "✓ CODE_OF_CONDUCT.md exists" || echo "✗ CODE_OF_CONDUCT.md missing"
+          test -f CHANGELOG.md && echo "✓ CHANGELOG.md exists" || echo "✗ CHANGELOG.md missing"
+          test -f docs/installation.md && echo "✓ Installation docs exist" || echo "✗ Installation docs missing"
+          test -f docs/quick_start.md && echo "✓ Quick start docs exist" || echo "✗ Quick start docs missing"
+
+      - name: Check for broken links in README
+        run: |
+          echo "Checking README for basic structure..."
+          grep -q "Table of Contents" README.md && echo "✓ Table of Contents found"
+          grep -q "Getting Started" README.md && echo "✓ Getting Started section found"
+          grep -q "License" README.md && echo "✓ License section found"

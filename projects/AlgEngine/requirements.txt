@@ -1,0 +1,79 @@
+# Core Dependencies
+numba==0.53.0
+numpy==1.23.4
+scipy==1.10.1
+pandas==2.0.3
+IPython==8.12.3
+
+# Deep Learning & Vision
+einops==0.4.1
+timm==1.0.25
+torchmetrics==0.11.4
+pytorch-lightning==1.2.5
+diffusers==0.33.1
+tensorboard==2.14.0
+
+# Computer Vision & Image Processing
+opencv-python==4.9.0.80
+pillow==10.4.0
+scikit-image==0.19.3
+scikit-learn==1.3.2
+pycocotools==2.0.7
+matplotlib==3.5.3
+
+# Autonomous Driving Datasets
+nuscenes-devkit
+lyft-dataset-sdk==0.0.8
+
+# Geometry & Spatial Processing
+geopandas==0.13.2
+trimesh==2.35.39
+pyquaternion==0.9.9
+descartes==1.1.0
+
+# Evaluation & Metrics
+motmetrics==1.1.3
+
+# Configuration & Utilities
+hydra-core==1.2.0
+omegaconf==2.3.0
+easydict==1.13
+addict==2.4.0
+pyyaml==6.0.3
+fire==0.7.1
+casadi==3.7.2
+pyogrio==0.9.0
+rasterio==1.3.11
+aioboto3==14.3.0
+retry==0.9.2
+
+# Visualization & UI
+pygame==2.5.2
+plotly==6.6.0
+tqdm==4.67.3
+
+# Graph & Network
+networkx==2.5
+
+# Code Formatting
+yapf==0.40.1
+black==24.8.0
+
+# Terminal Display
+terminaltables==3.1.10
+prettytable==3.11.0
+
+# Testing
+pytest==8.3.5
+
+# File Processing
+plyfile==1.0.3
+
+# Note: The following are installed separately via installation script:
+# - torch==2.0.1+cu118 (installed via pip with --index-url)
+# - torchvision==0.15.2+cu118 (installed via pip with --index-url)
+# - mmcv-full==1.6.2 (built from source with MMCV_WITH_OPS=1)
+# - mmcls==0.25.0 (installed after MMCV)
+# - mmdet==2.25.3 (installed after MMCV)
+# - mmdet3d==1.0.0rc6 (installed after MMCV)
+# - mmsegmentation==0.29.1 (installed after MMCV)

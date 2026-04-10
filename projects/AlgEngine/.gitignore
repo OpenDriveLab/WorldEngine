@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+data
+work_dirs
+ckpts
+.vscode

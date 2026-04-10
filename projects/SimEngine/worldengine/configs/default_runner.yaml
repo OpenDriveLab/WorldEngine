@@ -1,0 +1,148 @@
+hydra:
+  run:
+    dir: ${output_dir}
+  output_subdir: .hydra                                         # Store hydra's config breakdown here for debugging
+  searchpath:                                                   # Only <exp_dir> in these paths are discoverable
+    - pkg://worldengine.configs.common
+
+defaults:
+  - default_common
+  - _self_
+
+debug_mode: true
+debug_scene_name: null
+
+data_file_folder_path: 'data/sim_engine/scenarios/original/navtest_failures/'
+data_pkl_file_name: 'all_scenarios.pkl'                                   # Data file name
+data_file_path: ${oc.env:WORLDENGINE_ROOT}/${data_file_folder_path}/${data_pkl_file_name}           # Data file path
+
+asset_folder_path: '${oc.env:WORLDENGINE_ROOT}/data/sim_engine/assets/'       # Asset folder path
+
+data_output_dir: ${output_dir}/openscene_format
+
+# Number (or fractional, e.g., 0.25) of GPUs available for single simulation (per scenario and planner).
+# This number can also be < 1 because we allow multiple models to be loaded into a single GPU.
+# In case this number is 0 or null, no GPU is used for simulation and all cpu cores are leveraged
+# Note, that the user have to make sure that if a number < 1 is chosen, the model will fit 1 / num_gpus into GPU memory
+number_of_gpus_allocated_per_simulation: 1
+
+# This number specifies number of CPU threads that are used for simulation
+# In case this is null, then each simulation will use unlimited resources.
+# That will typically swamp the host computer, leading to slowdowns and failure.
+number_of_cpus_allocated_per_simulation: 16
+
+# If false, continue running the simulation even it a scenario has failed
+exit_on_failure: false
+
+# Distributed processing mode. If multi-node simulation is enable, this parameter selects how the scenarios distributed
+# to each node. The modes are:
+#  - SINGLE_NODE: Does no distribution, processes all scenarios in config
+#  - SCENARIO_BASED: Works in two stages, first getting a list of all, scenarios to process, then breaking up that
+#                    list and distributing across the workers
+distributed_mode: 'SINGLE_NODE'
+
+worker_id_prefix: 'split_'
+
+
+# We put other configurations here because we are very lazy
+
+env: 'base_env'
+
+frame_rate: 0.5
+planning_frame_rate: 0.5  # 10 * 0.05
+
+debug_static_world: true
+
+no_map: false
+store_map: false
+
+ego_vehicle_type: 'pacifica'
+destination: [0, 100]
+ego_controller: 'two_stage_controller'
+ego_policy: 'dbg_ego_policy'
+ego_navigation: 'ego_lane_navigation'
+ego_client: 'base_client'
+# ego_controller: 'log_play_controller'
+# ego_policy: 'trajectory_policy'
+# ego_navigation: 'trajectory_navigation'
+other_vehicle_type: 'pacifica'
+agent_controller: 'log_play_controller'
+agent_policy: 'trajectory_policy'
+agent_navigation: 'trajectory_navigation'
+
+# PDM parameters
+nuplan_map_root: '${oc.env:WORLDENGINE_ROOT}/data/raw/nuplan/dataset/maps'
+
+# IDM parameters
+DELTA_SPEED : 5                                     # [m/s]
+DISTANCE_WANTED : 10.0                              # Desired jam distance to the front vehicle.
+TIME_WANTED : 1.5  # [s]                            # Desired time gap to the front vehicle.
+DELTA : 4.0                                        # Exponent of the velocity term.
+DELTA_RANGE : [3.5, 4.5]                            # Range of delta when chosen randomly.
+# Lateral policy parameters
+LANE_CHANGE_FREQ : 50   # [step]
+LANE_CHANGE_SPEED_INCREASE : 10
+SAFE_LANE_CHANGE_DISTANCE : 15
+MAX_LONG_DIST : 30
+MAX_SPEED : 100  # km/h
+NORMAL_SPEED : 35  # km/h
+CREEP_SPEED : 5
+ACC_FACTOR : 2.5
+DEACC_FACTOR : -2.5
+# interpolation parameters
+TIME_STAMPS : 5
+dt : 0.5                                            # discretization_time = dt
+
+tracker: 'lqr'
+# LQR tuning
+q_longitudinal: [10.0]      # velocity tracking cost gain
+r_longitudinal: [1.0]       # acceleration tracking cost gain
+q_lateral: [5.0, 10.0, 1.0] # [lateral_error, heading_error, steering_angle] tracking cost gains
+r_lateral: [3.0]            # steering_rate tracking cost gain
+discretization_time: 0.1    # [s] The time interval used for discretizing the continuous time dynamics.
+tracking_horizon: 10        # The number of time steps (at discretization_time interval) ahead we consider for LQR. PS: need to be changed in different policy.
+
+# Parameters for velocity and curvature estimation.
+jerk_penalty: 1e-4            # Penalty for jerk in velocity profile estimation.
+curvature_rate_penalty: 1e-2  # Penalty for curvature rate in curvature profile estimation.
+
+# Stopping logic
+stopping_proportional_gain: 0.5 # Proportional controller tuning for stopping controller
+stopping_velocity: 0.2          # [m/s] Velocity threshold for stopping
+
+motion_model: 'kinematic_bicycle'
+accel_time_constant: 0.2  # low pass filter time constant for acceleration in s
+steering_angle_time_constant: 0.05  # low pass filter time constant for steering angle in s
+
+# Visualization
+visualize_BEV: false
+visualize_video: false
+NC_DAC_video_capture: false    # Capture videos when NC & DAC occur
+save_data: false
+
+# Planner
+use_planner_actions: false
+planner_data_path: null
+planner_client_folder: null
+
+# Render Manager
+with_render_manager: true
+
+# Data Manager
+with_data_manager: true
+
+# Metric Manager
+with_metric_manager: false
+num_history: 4
+num_future: 8
+sampling_poses: 8
+buffer_size: 9
+
+# Dense Reward Manager
+with_dense_reward_manager: false
+reward_sampling_poses: 8
+reward_buffer_size: 9
+
+# Resume functionality
+enable_resume: false
+completed_scenarios_dir: ${output_dir}/completed_scenarios

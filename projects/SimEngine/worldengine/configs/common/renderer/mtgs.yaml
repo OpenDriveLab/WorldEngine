@@ -1,0 +1,8 @@
+_target_: worldengine.render.mtgs.MTGSRenderEngine
+_convert_: 'all'
+enable_collider: false
+render_depth: false
+rasterize_mode: 'antialiased'
+radius_clip: 0.0
+background_color: 'black'
+device: 'cuda'
