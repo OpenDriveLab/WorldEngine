@@ -36,6 +36,27 @@ class CentralConfig(RoadBlockConfig):
     multi_traversal_mode: Literal['reconstruction', 'registration', 'off'] = 'off'
 
 
+def _build_config_loader():
+    """Build a YAML loader that maps legacy nuplan_scripts classes to local ones."""
+    loader = yaml.Loader
+
+    _TAG_MAP = {
+        'tag:yaml.org,2002:python/object:nuplan_scripts.utils.config.CentralConfig': CentralConfig,
+        'tag:yaml.org,2002:python/object:nuplan_scripts.utils.config.RoadBlockConfig': RoadBlockConfig,
+    }
+
+    for tag, cls in _TAG_MAP.items():
+        def _constructor(loader, node, _cls=cls):
+            fields = loader.construct_mapping(node, deep=True)
+            return _cls(**fields)
+        loader.add_constructor(tag, _constructor)
+
+    return loader
+
+
+_config_loader = _build_config_loader()
+
+
 def load_config(config_path: str):
     """
     Load configuration file.
@@ -53,7 +74,7 @@ def load_config(config_path: str):
 
     if config_path.suffix in ['.yml', '.yaml']:
         with open(config_path, 'r') as f:
-            config_dict = yaml.load(f, Loader=yaml.Loader)
+            config_dict = yaml.load(f, Loader=_config_loader)
         return config_dict
     else:
         raise NotImplementedError(f"Unsupported config file format: {config_path.suffix}")

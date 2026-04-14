@@ -84,7 +84,7 @@ bash scripts/run_ray_distributed_rollout.sh \
 1. `<config>`: Model configuration file
 2. `<checkpoint>`: Trained model checkpoint
 3. `<model_name>`: Experiment name (creates output folder)
-4. `<data_type>`: Scenario split (e.g., `navtrain_50pct_collision`) PS: **Default** original, please change it in `run_ray_distributed_rollout.sh`.
+4. `<data_type>`: Scenario split (e.g., `navtrain_50pct_collision`). Must match a directory under `data/sim_engine/scenarios/original/`
 5. `<asset_name>` (optional): Asset folder name under `data/sim_engine/assets/`. Defaults to `<data_type>` if not provided
 
 **Features:**
@@ -265,18 +265,19 @@ WE_output/openscene_format/
 
 ## Utility Scripts
 
-### Convert nuPlan Data to WorldEngine Format
+### Convert nuPlan Data to SimEngine Format
 
-Convert nuPlan dataset to WorldEngine scenario format with navsim filter-based scene selection.
+Convert nuPlan dataset to SimEngine scenario format with navsim filter-based scene selection.
 
 Example:
 ```bash
 conda activate simengine
 
 python projects/SimEngine/worldengine/utils/dataset_utils/nuplan/digitaltwin_nuplan_converter_navsim_filter.py \
-    --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_collision.yaml \
-        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_ep_1pct.yaml \
-    --out-dir data/sim_engine/scenarios/original/navtrain_hydramdp_failures \
+    --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1.0pct.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml \
+    --out-dir data/sim_engine/scenarios/original/navtrain_vadv2_50pct_rare \
     --num-processes 8
 ```
 
@@ -291,7 +292,7 @@ python projects/SimEngine/worldengine/utils/dataset_utils/nuplan/digitaltwin_nup
 - `--num-processes`: Number of parallel processes
 
 **Output:**
-- `{out-dir}/combined/all_scenarios.pkl` - Converted WorldEngine scenario file
+- `{out-dir}/all_scenarios.pkl` - Converted WorldEngine scenario file
 
 The script extracts from Digital Twin config and nuPlan raw data:
 - Ego and agent vehicle trajectories

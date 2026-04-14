@@ -3,10 +3,10 @@ A script to convert nuPlan data into WorldEngine format.
 """
 r"""
 python worldengine/utils/dataset_utils/nuplan/digitaltwin_nuplan_converter_navsim_filter.py \
-    --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_collision.yaml \
-        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_ep_1pct.yaml \
-        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_off_road.yaml \
-    --out-dir data/sim_engine/scenarios/original/navtrain_hydramdp_failures \
+    --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1.0pct.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml \
+    --out-dir data/sim_engine/scenarios/original/navtrain_vadv2_50pct_failures \
     --num-processes 2
 """
 
@@ -39,7 +39,10 @@ def read_openscene_data_infos(openscene_dataroot, log_name, lidar_pc_tokens):
     openscene_data_infos = os.path.join(openscene_dataroot, 'meta_datas', 'trainval', f"{log_name}.pkl")
     if not os.path.exists(openscene_data_infos):
         openscene_data_infos = os.path.join(openscene_dataroot, 'meta_datas', 'test', f"{log_name}.pkl")
-    assert os.path.exists(openscene_data_infos)
+    assert os.path.exists(openscene_data_infos), (
+        f"OpenScene meta_data not found for log '{log_name}'. "
+        f"Searched: {openscene_dataroot}/meta_datas/{{trainval,test}}/{log_name}.pkl"
+    )
     openscene_data_infos = pickle.load(open(openscene_data_infos, 'rb'))
     openscene_data_dict = {frame['token']: frame for frame in openscene_data_infos}
     openscene_data_dict = {token: openscene_data_dict[token] for token in lidar_pc_tokens}
@@ -245,8 +248,8 @@ def parse_args():
         "--nuplan-map-root", help="path to nuplan map data.",
         default='data/raw/nuplan/dataset/maps')
     parser.add_argument(
-        "--openscene-dataroot", help="path to openscene data.", 
-        default='data/openscene-v1.1')
+        "--openscene-dataroot", help="path to openscene data.",
+        default='data/raw/openscene-v1.1')
     parser.add_argument("--out-dir", help="output path.")
 
     # data configurations.
@@ -312,8 +315,8 @@ if __name__ == "__main__":
         ):
             all_scenarios.update(return_dict)
 
-    pkl_file_path = f"{args.out_dir}/combined/all_scenarios.pkl"
+    pkl_file_path = f"{args.out_dir}/all_scenarios.pkl"
     print(f"Saving to {pkl_file_path}")
-    os.makedirs(f"{args.out_dir}/combined", exist_ok=True)
+    os.makedirs(args.out_dir, exist_ok=True)
     with open(pkl_file_path, "wb") as f:
         pickle.dump(dict(all_scenarios), f, protocol=pickle.HIGHEST_PROTOCOL)
