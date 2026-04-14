@@ -65,9 +65,9 @@ nav_filter_path_val = "configs/navsim_splits/navtest_split/navtest.yaml"
 nav_filter_path_test = "configs/navsim_splits/navtest_split/navtest.yaml"
 
 finetune_yaml = [
-    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_collision.yaml",
-    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_ep_1pct.yaml",
-    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_off_road.yaml",
+    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml",
+    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1pct.yaml",
+    "configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml",
 ]
 
 model = dict(

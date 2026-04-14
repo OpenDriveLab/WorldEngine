@@ -222,9 +222,9 @@ data = dict(
         load_interval=1,
         fix_can_bus_rotation=True,
         finetune_yaml=[
-            'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_collision.yaml',
-            'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_ep_1pct.yaml',
-            'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_off_road.yaml'
+            'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml',
+            'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1pct.yaml',
+            'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml'
         ]),
     val=dict(
         type='NavSimOpenScenesE2E',
@@ -497,9 +497,9 @@ nav_filter_path_val = "configs/navsim_splits/navtest_split/navtest.yaml"
 nav_filter_path_test = "configs/navsim_splits/navtest_split/navtest.yaml"
 
 finetune_yaml = [
-    'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_collision.yaml',
-    'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_ep_1pct.yaml',
-    'data_loop/navtrain_split/e2e_vadv2_50pct_ep8/navtrain_50pct_off_road.yaml'
+    'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml',
+    'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1pct.yaml',
+    'data_loop/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml'
 ]
 synthetic_folder_names = [
     'e2e_vadv2_50pct_navtrain_50pct_collision_NR_250911',

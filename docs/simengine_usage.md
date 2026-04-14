@@ -274,8 +274,8 @@ Example:
 conda activate simengine
 
 python projects/SimEngine/worldengine/utils/dataset_utils/nuplan/digitaltwin_nuplan_converter_navsim_filter.py \
-    --navsim-filters $ALGENGINE_ROOT/data_loop/navtrain_split/e2e_hydramdp_ep8/navtrain_collision.yaml \
-        $ALGENGINE_ROOT/data_loop/navtrain_split/e2e_hydramdp_ep8/navtrain_ep_1pct.yaml \
+    --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_collision.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_ep_1pct.yaml \
     --out-dir data/sim_engine/scenarios/original/navtrain_hydramdp_failures \
     --num-processes 8
 ```
