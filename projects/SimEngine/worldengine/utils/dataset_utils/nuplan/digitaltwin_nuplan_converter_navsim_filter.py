@@ -171,12 +171,18 @@ def create_scenario_description(
     return info_dict
 
 def create_digitaltwin_info_central(video_scene: VideoScene, args=None):
-    return_dict = {}
+    """Process one video scene and save results to individual pickle files."""
+    processed_scenarios = []
     nuplan_root_path = args.nuplan_root_path
     nuplan_db_path = args.nuplan_db_path
     nuplan_map_version = args.nuplan_map_version
     nuplan_map_root = args.nuplan_map_root
     openscene_dataroot = args.openscene_dataroot
+    out_dir = args.out_dir
+
+    # Create chunks directory for individual scenario files
+    chunks_dir = os.path.join(out_dir, "chunks")
+    os.makedirs(chunks_dir, exist_ok=True)
 
     video_scene_dict = video_scene.video_scene_dict
     digitaltwin_config = video_scene.config
@@ -212,12 +218,17 @@ def create_digitaltwin_info_central(video_scene: VideoScene, args=None):
                     map_location=map_location,
                     video_name=current_video_name,
                 )
-                return_dict[current_video_name] = info_dict
+                # Save individual scenario to avoid large pipe transfers
+                chunk_file = os.path.join(chunks_dir, f"{current_video_name}.pkl")
+                with open(chunk_file, "wb") as f:
+                    pickle.dump({current_video_name: info_dict}, f, protocol=pickle.HIGHEST_PROTOCOL)
+                processed_scenarios.append(current_video_name)
             except KeyError as e:
                 print(f"{current_video_name} failed due to mismatch OpenScene info")
                 continue
 
-    return return_dict
+    # Return only scenario names, not the full data
+    return processed_scenarios
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create world engine pkl from Digital Twin config.")
@@ -302,21 +313,42 @@ if __name__ == "__main__":
     # DEBUG: single process
     # all_scenarios = {}
     # for video_scene in filtered_video_scenes:
-    #     return_dict = create_digitaltwin_info_central(video_scene, args)
-    #     all_scenarios.update(return_dict)
+    #     scenario_names = create_digitaltwin_info_central(video_scene, args)
+    #     print(f"Processed {len(scenario_names)} scenarios")
 
-    all_scenarios = {}
+    # Create chunks directory
+    chunks_dir = os.path.join(out_dir, "chunks")
+    os.makedirs(chunks_dir, exist_ok=True)
+
+    # Process with multiprocessing - workers save directly to disk
+    all_scenario_names = []
     with Pool(processes=args.num_processes) as pool:
         # Use tqdm to show progress
-        for return_dict in tqdm(
+        for scenario_names in tqdm(
             pool.imap_unordered(partial(create_digitaltwin_info_central, args=args), filtered_video_scenes),
             total=len(filtered_video_scenes),
             desc="Processing Video Scenes"
         ):
-            all_scenarios.update(return_dict)
+            all_scenario_names.extend(scenario_names)
+
+    print(f"\nTotal scenarios processed: {len(all_scenario_names)}")
+    print(f"Merging {len(all_scenario_names)} chunk files from {chunks_dir}")
+
+    # Merge all chunk files into final pickle
+    all_scenarios = {}
+    for scenario_name in tqdm(all_scenario_names, desc="Merging chunks"):
+        chunk_file = os.path.join(chunks_dir, f"{scenario_name}.pkl")
+        if os.path.exists(chunk_file):
+            with open(chunk_file, "rb") as f:
+                chunk_data = pickle.load(f)
+                all_scenarios.update(chunk_data)
+        else:
+            print(f"Warning: chunk file not found: {chunk_file}")
 
     pkl_file_path = f"{args.out_dir}/all_scenarios.pkl"
-    print(f"Saving to {pkl_file_path}")
+    print(f"Saving final result to {pkl_file_path}")
     os.makedirs(args.out_dir, exist_ok=True)
     with open(pkl_file_path, "wb") as f:
         pickle.dump(dict(all_scenarios), f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    print(f"Done! Final pkl contains {len(all_scenarios)} scenarios")

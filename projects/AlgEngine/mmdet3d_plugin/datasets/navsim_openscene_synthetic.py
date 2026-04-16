@@ -13,6 +13,7 @@ from mmdet.datasets import DATASETS
 from mmdet3d_plugin.datasets.navsim_openscene_finetuning import NavSimOpenSceneE2EFineTune
 from mmdet3d_plugin.utils import get_logger
 logger = get_logger(__name__)
+WORLDENGINE_ROOT = os.environ["WORLDENGINE_ROOT"]
 
 @DATASETS.register_module()
 class NavSimOpenSceneE2EFineTuneSynthetic(NavSimOpenSceneE2EFineTune):
@@ -31,9 +32,9 @@ class NavSimOpenSceneE2EFineTuneSynthetic(NavSimOpenSceneE2EFineTune):
         **kwargs):
 
         # Synthetic:
-        self.synthetic_path = 'data/alg_engine/openscene-synthetic/meta_datas'
-        self.synthetic_img_root = 'data/alg_engine/openscene-synthetic/sensor_blobs'
-        self.syn_pdm_path = 'data/alg_engine/openscene-synthetic/pdms_pkl'
+        self.synthetic_path = os.path.join(WORLDENGINE_ROOT, 'data/alg_engine/openscene-synthetic/meta_datas')
+        self.synthetic_img_root = os.path.join(WORLDENGINE_ROOT, 'data/alg_engine/openscene-synthetic/sensor_blobs')
+        self.syn_pdm_path = os.path.join(WORLDENGINE_ROOT, 'data/alg_engine/openscene-synthetic/pdms_pkl')
         self.folder_names = folder_name
         if isinstance(self.folder_names, str):
             self.folder_names = [self.folder_names]
