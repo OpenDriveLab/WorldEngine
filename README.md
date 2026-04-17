@@ -269,6 +269,15 @@ If you find AlgEngine well, please cite as well:
   keywords={Adaptation models;Self-aware;Autonomous vehicles;Pipelines;Planning;Training;Reinforcement learning;Uncertainty;Data models;Safety;End-to-end autonomous driving;reinforced finetuning;imitation learning;motion planning},
   doi={10.1109/TPAMI.2026.3653866}}
 ```
+If you find data scaling infos helpful, please also cite:
+```bibtex
+@article{tian2025simscale,
+        title={SimScale: Learning to Drive via Real-World Simulation at Scale},
+        author={Haochen Tian and Tianyu Li and Haochen Liu and Jiazhi Yang and Yihang Qiu and Guang Li and Junli Wang and Yinfeng Gao and Zhang Zhang and Liang Wang and Hangjun Ye and Tieniu Tan and Long Chen and Hongyang Li},
+        journal={arXiv preprint arXiv:2511.23369},
+        year={2025}
+      }
+```
 
 ## Contributing
 
