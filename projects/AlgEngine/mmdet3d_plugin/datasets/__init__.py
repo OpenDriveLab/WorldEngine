@@ -5,3 +5,4 @@ from .navsim_openscene_nuplan_det import NavSimOpenSceneE2EDet
 from .navsim_openscene_finetuning import NavSimOpenSceneE2EFineTune
 from .navsim_openscene_closed_loop import NavSimOpenSceneE2EClosedLoop
 from .navsim_openscene_synthetic import NavSimOpenSceneE2EFineTuneSynthetic
+from .navsim_openscene_simscale import NavSimOpenSceneE2EFineTuneSimScale

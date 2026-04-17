@@ -322,6 +322,7 @@ We acknowledge all the open-source contributors for the following projects to ma
 | Project | Description |
 |:-------:|:------------|
 | [![MTGS](https://img.shields.io/badge/MTGS-Multi--Traversal_GS-blue?style=flat-square&logo=github)](https://github.com/OpenDriveLab/MTGS) | Multi-traversal Gaussian Splatting for scene reconstruction |
+| [![SimScale](https://img.shields.io/badge/SimScale-Driving_Simulation-AD9BC2?style=flat-square&logo=github)](https://github.com/OpenDriveLab/SimScale) | Large scale driving simulation |
 | [![nerfstudio](https://img.shields.io/badge/nerfstudio-NeRF_Framework-green?style=flat-square&logo=github)](https://github.com/nerfstudio-project/nerfstudio) | Collaboration-friendly NeRF toolkit |
 | [![MMDetection3D](https://img.shields.io/badge/MMDetection3D-3D_Detection-orange?style=flat-square&logo=github)](https://github.com/open-mmlab/mmdetection3d) | 3D detection framework |
 | [![UniAD](https://img.shields.io/badge/UniAD-End--to--End_AD-red?style=flat-square&logo=github)](https://github.com/OpenDriveLab/UniAD) | End-to-end autonomous driving framework |
