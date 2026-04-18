@@ -11,7 +11,7 @@ analysis. Three failure modes are extracted:
 
 Usage
 -----
-    python tools/rare_case_sampling_by_pdms.py \
+    python scripts/rare_case_sampling_by_pdms.py \
         --pdm-result  work_dirs/path/to/<MODEL_NAME>/test/navtrain.csv \
         --base-split  configs/navsim_splits/navtrain_split/navtrain.yaml \
         --output-dir  configs/navsim_splits/navtrain_split/<MODEL_NAME> \
@@ -121,7 +121,7 @@ def main():
           f"tokens={len(ep_tokens)} ({_pct(len(ep_tokens))})")
     save_navsim_split(
         make_split(base_split, ep_tokens),
-        os.path.join(args.output_dir, f"{prefix}_ep_{args.ep_percentile}pct.yaml"))
+        os.path.join(args.output_dir, f"{prefix}_ep_{args.ep_percentile:g}pct.yaml"))
 
     # ---- 2. Collision ------------------------------------------------------
     col_tokens = sample_collision(df)

@@ -271,7 +271,7 @@ The script generates three rare case split files:
 configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/
 ├── navtrain_50pct_collision.yaml      # Collision scenarios
 ├── navtrain_50pct_off_road.yaml       # Off-road scenarios
-└── navtrain_50pct_ep_1.0pct.yaml      # Low ego-progress (bottom 1%)
+└── navtrain_50pct_ep_1pct.yaml        # Low ego-progress (bottom 1%)
 ```
 
 ### Using Custom Thresholds
@@ -314,7 +314,7 @@ Fine-tune a trained model on rare cases using reinforcement learning.
 
    python projects/SimEngine/worldengine/utils/dataset_utils/nuplan/digitaltwin_nuplan_converter_navsim_filter.py \
        --navsim-filters $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_collision.yaml \
-        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1.0pct.yaml \
+        $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_ep_1pct.yaml \
         $ALGENGINE_ROOT/configs/navsim_splits/navtrain_split/e2e_vadv2_50pct_rare/navtrain_50pct_off_road.yaml \
        --out-dir data/sim_engine/scenarios/original/navtrain_vadv2_50pct_rare \
        --num-processes 8
@@ -467,7 +467,7 @@ configs/
     │   └── e2e_vadv2_50pct_rare/       # Rare case splits
     │       ├── navtrain_50pct_collision.yaml
     │       ├── navtrain_50pct_off_road.yaml
-    │       └── navtrain_50pct_ep_1.0pct.yaml
+    │       └── navtrain_50pct_ep_1pct.yaml
     └── navtest_split/
         ├── navtest.yaml                # Full test set
         └── navtest_failures.yaml       # Failure subset
