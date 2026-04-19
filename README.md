@@ -5,6 +5,7 @@
 > *The missing infrastructure for Physical AI post-training in AD. Open-source. Production-validated.*
 
 [![Paper](https://img.shields.io/badge/Paper-Coming_Soon-b31b1b.svg?style=for-the-badge&logo=arxiv)](https://github.com/OpenDriveLab/WorldEngine)
+[![YouTube](https://img.shields.io/badge/YouTube-Video-FF0000.svg?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=P1zEyfqa1uY)
 [![Hugging Face](https://img.shields.io/badge/Hugging_Face-Dataset-ffc107.svg?style=for-the-badge&logo=huggingface)](https://huggingface.co/datasets/OpenDriveLab/WorldEngine)
 [![ModelScope](https://img.shields.io/badge/ModelScope-Dataset-orange.svg?style=for-the-badge)](https://www.modelscope.cn/datasets/OpenDriveLab/WorldEngine)
 <br>
