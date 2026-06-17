@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://raw.githubusercontent.com/OpenDriveLab/opendrivelab.github.io/refs/heads/master/WorldEngine/imgs/WE_title.png" width="800px">
 
-# Towards the Era of Post-Training for Physical AI
+# Towards the Era of Post-Training for Autonomous Driving
 > *The missing infrastructure for Physical AI post-training in AD. Open-source. Production-validated.*
 
 [![Paper](https://img.shields.io/badge/Paper-Coming_Soon-b31b1b.svg?style=for-the-badge&logo=arxiv)](https://github.com/OpenDriveLab/WorldEngine)
@@ -66,26 +66,27 @@ We compare different post-training paradigms on the nuPlan dataset, evaluating o
 > **Early stage**. Stable ckpts and corresponding results coming soon.
 > - **Open-loop PDMS** is aligned with [NAVSIM v1.1](https://github.com/autonomousvision/navsim) PDM Score. *Common* denotes the standard `navtest` split; *Rare* denotes the `navtest_failures` subset — failure-prone rare-case scenarios extracted from `navtest`.
 > - **Closed-loop Success Rate** is defined as the fraction of simulated driving episodes completed without collision or off-road failure.
+> - **Closed-loop Ego Progress (EP)** measures the route progress made by the ego vehicle during **SimEngine closed-loop testing**, reflecting whether the agent makes meaningful forward progress rather than merely avoiding collision or off-road failure.
 > - **Closed-loop PDMS*** is the PDM Score obtained via **SimEngine closed-loop testing**, where the planner interacts with reactive agents in simulation under real-time rendering.
 >
 > **Training notes:**
 > - **Rare logs** are failure-prone scenarios automatically extracted from `navtrain` by the pre-trained agent itself (see [Rare Case Extraction](docs/algengine_usage.md#rare-case-extraction)). 
 > - **Common logs** are the standard cases in `navtrain`.
 
-| Method | Open-loop PDMS ↑ (common) | Open-loop PDMS ↑ (rare) | Closed-loop Success Rate ↑ | Closed-loop PDMS* ↑ |
-|:-------|:-------------------------:|:-----------------------:|:--------------------------:|:--------------------:|
-| Base model | 85.62 | 47.15 | 73.61 | 60.28 |
-| Supervised fine-tuning on rare logs | 87.03 | 49.68 | 73.26 | 62.26 |
-| Post-training on common logs | 86.15 | 51.49 | 64.58 | 56.66 |
-| Post-training on rare logs | 89.29 | 62.56 | 74.31 | 62.55 |
-| Post-training on rare synthetic replays | 88.01 | 56.62 | 76.39 | 62.11 |
-| Post-training on rare rollouts w/o Behaviour WM | 88.99 | 59.69 | 85.07 | 68.29 |
-| **Post-training with WorldEngine** | **88.95** | **59.83** | **88.89** | **70.12** |
+| Method | Open-loop PDMS ↑ (common) | Open-loop PDMS ↑ (rare) | Closed-loop SR ↑ (rare) | Closed-loop EP ↑ (rare) | Closed-loop PDMS* ↑ (rare) |
+|:-------|:-------------------------:|:-----------------------:|:-----------------------:|:-----------------------:|:--------------------------:|
+| Base model | 85.64 | 47.14 | 73.66 | 46.71 | 60.98 |
+| Supervised fine-tuning on rare logs | 87.50 | 52.55 | 74.51 | 47.59 | 61.87 |
+| Post-training on common logs | 87.69 | 49.36 | 69.63 | 51.02 | 60.21 |
+| Post-training on rare logs | 88.51 | 59.20 | 73.35 | 51.86 | 62.78 |
+| Post-training on rare synthetic replays | 82.61 | 62.69 | 87.20 | 32.49 | 63.22 |
+| Post-training on rare rollouts w/o Behaviour WM | 88.53 | 61.88 | 77.96 | 56.74 | 67.33 |
+| **Post-training with WorldEngine** | **88.95** | **59.83** | **88.89** | **47.66** | **70.12** |
 
 **Key findings:**
-- Post-training on **rare logs** significantly outperforms supervised fine-tuning (62.56 vs 49.68 open-loop rare PDMS), demonstrating the advantage of reward-guided optimization over imitation.
-- Post-training on **common logs** provides limited benefit and even degrades closed-loop performance (success rate drops from 73.61% to 64.58%), confirming that long-tail event discovery is essential.
-- The full **WorldEngine** pipeline achieves the best closed-loop performance (**88.89%** success rate, **70.12** PDMS*), a **+15.28%** absolute improvement in success rate over the base model.
+- Post-training on **rare logs** substantially improves rare open-loop PDMS over supervised fine-tuning (**59.20 vs. 52.55**), but does not improve rare closed-loop SR, indicating that fixed rare logs alone are insufficient for robust interactive behaviour.
+- Post-training on **common logs** provides limited long-tail benefit and degrades rare closed-loop performance, reducing SR from **73.66%** to **69.63%** and PDMS$^\ast$ from **60.98** to **60.21**, confirming the importance of long-tail event discovery.
+- The full WorldEngine pipeline achieves the best overall rare closed-loop performance, with the highest SR (**88.89%**) and PDMS$^\ast$ (**70.12**). It improves rare closed-loop SR by **+15.23** percentage points and PDMS$^\ast$ by **+9.14** over the base model, while maintaining strong common open-loop performance.
 
 ### Qualitative Results — Closed-Loop Simulation on nuPlan
 
