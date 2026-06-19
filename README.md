@@ -4,7 +4,7 @@
 # Towards the Era of Post-Training for Autonomous Driving
 > *The missing infrastructure for Physical AI post-training in AD. Open-source. Production-validated.*
 
-[![Paper](https://img.shields.io/badge/Paper-Coming_Soon-b31b1b.svg?style=for-the-badge&logo=arxiv)](https://github.com/OpenDriveLab/WorldEngine)
+[![Paper](https://img.shields.io/badge/arXiv-2606.19836-b31b1b.svg?style=for-the-badge&logo=arxiv)](https://arxiv.org/abs/2606.19836)
 [![YouTube](https://img.shields.io/badge/YouTube-Video-FF0000.svg?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=P1zEyfqa1uY)
 [![Hugging Face](https://img.shields.io/badge/Hugging_Face-Dataset-ffc107.svg?style=for-the-badge&logo=huggingface)](https://huggingface.co/datasets/OpenDriveLab/WorldEngine)
 [![ModelScope](https://img.shields.io/badge/ModelScope-Dataset-orange.svg?style=for-the-badge)](https://www.modelscope.cn/datasets/OpenDriveLab/WorldEngine)
@@ -225,6 +225,17 @@ WorldEngine's simulation environments are powered by 3D Gaussian Splatting (MTGS
 ## Citation
 
 If any parts of our work help your research, please consider citing us and giving a star to our repository:
+```bibtex
+@misc{li2026worldengineeraposttraining,
+      title={World Engine: Towards the Era of Post-Training for Autonomous Driving}, 
+      author={Tianyu Li and Li Chen and Caojun Wang and Haochen Liu and Kashyap Chitta and Zhenjie Yang and Yuhang Lu and Naisheng Ye and Yihang Qiu and Yufei Wang and Luoxi Zou and Jiaxin Peng and Jin Pan and Zhaoyu Su and Andrei Bursuc and Shengbo Eben Li and Andreas Geiger and Peng Su and Hongyang Li},
+      year={2026},
+      eprint={2606.19836},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2606.19836}, 
+}
+```
 
 If you use the Render Assets (MTGS), please also cite:
 ```bibtex
