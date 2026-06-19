@@ -41,6 +41,7 @@
 - [Citation](#citation)
 - [Contributing](#contributing)
 - [License](#license)
+- [Acknowledgements](#acknowledgements)
 - [Related Resources](#related-resources)
 
 ## Highlights
@@ -54,6 +55,7 @@
 
 
 ## News
+- **[2026/06/19]** Paper released on arXiv. See [World Engine: Towards the Era of Post-Training for Autonomous Driving](https://arxiv.org/abs/2606.19836).
 - **[2026/04/09]** Official dataset released. See [OpenDriveLab/WorldEngine](https://huggingface.co/datasets/OpenDriveLab/WorldEngine) or [OpenDriveLab/WorldEngine (ModelScope)](https://www.modelscope.cn/datasets/OpenDriveLab/WorldEngine)
 - **[2026/04/10]** Official code repository established.
 
@@ -135,7 +137,7 @@ WorldEngine consists of two tightly coupled subsystems:
 - [x] Comprehensive documentation and usage guides
 - [x] Hugging Face / ModelScope dataset
 - [x] Open-source release (code, data, early pre-trained models)
-- [ ] arXiv preprint
+- [x] arXiv preprint
 - [ ] Behavior World Model integration
 - [ ] Stable pre-trained models
 
@@ -237,54 +239,6 @@ If any parts of our work help your research, please consider citing us and givin
 }
 ```
 
-If you use the Render Assets (MTGS), please also cite:
-```bibtex
-@article{li2025mtgs,
-  title={MTGS: Multi-Traversal Gaussian Splatting},
-  author={Li, Tianyu and Qiu, Yihang and Wu, Zhenhua and Lindstr{\"o}m, Carl and Su, Peng and Nie{\ss}ner, Matthias and Li, Hongyang},
-  journal={arXiv preprint arXiv:2503.12552},
-  year={2025}
-}
-```
-If you use the augmented scenarios data, please cite as well:
-```bibtex
-@inproceedings{zhou2025nexus,
-  title={Decoupled Diffusion Sparks Adaptive Scene Generation},
-  author={Zhou, Yunsong and Ye, Naisheng and Ljungbergh, William and Li, Tianyu and Yang, Jiazhi and Yang, Zetong and Zhu, Hongzi and Petersson, Christoffer and Li, Hongyang},
-  booktitle={ICCV},
-  year={2025}
-}
-```
-```bibtex
-@article{li2025optimization,
-  title={Optimization-Guided Diffusion for Interactive Scene Generation},
-  author={Li, Shihao and Ye, Naisheng and Li, Tianyu and Chitta, Kashyap and An, Tuo and Su, Peng and Wang, Boyang and Liu, Haiou and Lv, Chen and Li, Hongyang},
-  journal={arXiv preprint arXiv:2512.07661},
-  year={2025}
-}
-```
-If you find AlgEngine well, please cite as well:
-```bibtex
-@ARTICLE{11353028,
-  author={Liu, Haochen and Li, Tianyu and Yang, Haohan and Chen, Li and Wang, Caojun and Guo, Ke and Tian, Haochen and Li, Hongchen and Li, Hongyang and Lv, Chen},
-  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence}, 
-  title={Reinforced Refinement With Self-Aware Expansion for End-to-End Autonomous Driving}, 
-  year={2026},
-  volume={48},
-  number={5},
-  pages={5774-5792},
-  keywords={Adaptation models;Self-aware;Autonomous vehicles;Pipelines;Planning;Training;Reinforcement learning;Uncertainty;Data models;Safety;End-to-end autonomous driving;reinforced finetuning;imitation learning;motion planning},
-  doi={10.1109/TPAMI.2026.3653866}}
-```
-If you find data scaling infos helpful, please also cite:
-```bibtex
-@article{tian2025simscale,
-        title={SimScale: Learning to Drive via Real-World Simulation at Scale},
-        author={Haochen Tian and Tianyu Li and Haochen Liu and Jiazhi Yang and Yihang Qiu and Guang Li and Junli Wang and Yinfeng Gao and Zhang Zhang and Liang Wang and Hangjun Ye and Tieniu Tan and Long Chen and Hongyang Li},
-        journal={arXiv preprint arXiv:2511.23369},
-        year={2025}
-      }
-```
 
 ## Contributing
 
@@ -318,6 +272,65 @@ WorldEngine is developed by **Shanghai Innovation Institute (SII)** and **OpenDr
 - Algorithm Development Team
 
 We would like to thank all contributors and the open-source community for their support. -->
+
+
+## Acknowledgements
+
+WorldEngine builds on top of the following works. We sincerely thank the authors for their contributions:
+
+- **MTGS** — Multi-Traversal Gaussian Splatting, the scene reconstruction backbone powering our photorealistic simulation environments.
+  ```bibtex
+  @article{li2025mtgs,
+    title={MTGS: Multi-Traversal Gaussian Splatting},
+    author={Li, Tianyu and Qiu, Yihang and Wu, Zhenhua and Lindstr{\"o}m, Carl and Su, Peng and Nie{\ss}ner, Matthias and Li, Hongyang},
+    journal={arXiv preprint arXiv:2503.12552},
+    year={2025}
+  }
+  ```
+
+- **Nexus (Decoupled Diffusion)** — Decoupled Diffusion Sparks Adaptive Scene Generation, enabling our augmented scenario generation pipeline.
+  ```bibtex
+  @inproceedings{zhou2025nexus,
+    title={Decoupled Diffusion Sparks Adaptive Scene Generation},
+    author={Zhou, Yunsong and Ye, Naisheng and Ljungbergh, William and Li, Tianyu and Yang, Jiazhi and Yang, Zetong and Zhu, Hongzi and Petersson, Christoffer and Li, Hongyang},
+    booktitle={ICCV},
+    year={2025}
+  }
+  ```
+
+- **Optimization-Guided Diffusion** — Optimization-Guided Diffusion for Interactive Scene Generation, underpinning behaviour-driven scenario synthesis.
+  ```bibtex
+  @article{li2025optimization,
+    title={Optimization-Guided Diffusion for Interactive Scene Generation},
+    author={Li, Shihao and Ye, Naisheng and Li, Tianyu and Chitta, Kashyap and An, Tuo and Su, Peng and Wang, Boyang and Liu, Haiou and Lv, Chen and Li, Hongyang},
+    journal={arXiv preprint arXiv:2512.07661},
+    year={2025}
+  }
+  ```
+
+- **AlgEngine (Reinforced Refinement)** — Reinforced Refinement with Self-Aware Expansion for End-to-End Autonomous Driving, the RL-based fine-tuning backbone of AlgEngine.
+  ```bibtex
+  @ARTICLE{11353028,
+    author={Liu, Haochen and Li, Tianyu and Yang, Haohan and Chen, Li and Wang, Caojun and Guo, Ke and Tian, Haochen and Li, Hongchen and Li, Hongyang and Lv, Chen},
+    journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+    title={Reinforced Refinement With Self-Aware Expansion for End-to-End Autonomous Driving},
+    year={2026},
+    volume={48},
+    number={5},
+    pages={5774-5792},
+    doi={10.1109/TPAMI.2026.3653866}
+  }
+  ```
+
+- **SimScale** — Learning to Drive via Real-World Simulation at Scale, providing insights into large-scale simulation-based training.
+  ```bibtex
+  @article{tian2025simscale,
+    title={SimScale: Learning to Drive via Real-World Simulation at Scale},
+    author={Haochen Tian and Tianyu Li and Haochen Liu and Jiazhi Yang and Yihang Qiu and Guang Li and Junli Wang and Yinfeng Gao and Zhang Zhang and Liang Wang and Hangjun Ye and Tieniu Tan and Long Chen and Hongyang Li},
+    journal={arXiv preprint arXiv:2511.23369},
+    year={2025}
+  }
+  ```
 
 
 ## Related Resources
