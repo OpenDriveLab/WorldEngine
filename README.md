@@ -228,14 +228,14 @@ WorldEngine's simulation environments are powered by 3D Gaussian Splatting (MTGS
 
 If any parts of our work help your research, please consider citing us and giving a star to our repository:
 ```bibtex
-@misc{li2026worldengineeraposttraining,
-      title={World Engine: Towards the Era of Post-Training for Autonomous Driving}, 
-      author={Tianyu Li and Li Chen and Caojun Wang and Haochen Liu and Kashyap Chitta and Zhenjie Yang and Yuhang Lu and Naisheng Ye and Yihang Qiu and Yufei Wang and Luoxi Zou and Jiaxin Peng and Jin Pan and Zhaoyu Su and Andrei Bursuc and Shengbo Eben Li and Andreas Geiger and Peng Su and Hongyang Li},
-      year={2026},
-      eprint={2606.19836},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2606.19836}, 
+@misc{li2026worldengine,
+  title={World Engine: Towards the Era of Post-Training for Autonomous Driving}, 
+  author={Tianyu Li and Li Chen and Caojun Wang and Haochen Liu and Kashyap Chitta and Zhenjie Yang and Yuhang Lu and Naisheng Ye and Yihang Qiu and Yufei Wang and Luoxi Zou and Jiaxin Peng and Jin Pan and Zhaoyu Su and Andrei Bursuc and Shengbo Eben Li and Andreas Geiger and Peng Su and Hongyang Li},
+  year={2026},
+  eprint={2606.19836},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO},
+  url={https://arxiv.org/abs/2606.19836}, 
 }
 ```
 
@@ -300,17 +300,17 @@ WorldEngine builds on top of the following works. We sincerely thank the authors
 
 - **Optimization-Guided Diffusion** — Optimization-Guided Diffusion for Interactive Scene Generation, underpinning behaviour-driven scenario synthesis.
   ```bibtex
-  @article{li2025optimization,
+  @inproceedings{li2025optimization,
     title={Optimization-Guided Diffusion for Interactive Scene Generation},
     author={Li, Shihao and Ye, Naisheng and Li, Tianyu and Chitta, Kashyap and An, Tuo and Su, Peng and Wang, Boyang and Liu, Haiou and Lv, Chen and Li, Hongyang},
-    journal={arXiv preprint arXiv:2512.07661},
-    year={2025}
+    booktitle={ECCV},
+    year={2026}
   }
   ```
 
 - **AlgEngine (Reinforced Refinement)** — Reinforced Refinement with Self-Aware Expansion for End-to-End Autonomous Driving, the RL-based fine-tuning backbone of AlgEngine.
   ```bibtex
-  @ARTICLE{11353028,
+  @ARTICLE{liu2026r2se,
     author={Liu, Haochen and Li, Tianyu and Yang, Haohan and Chen, Li and Wang, Caojun and Guo, Ke and Tian, Haochen and Li, Hongchen and Li, Hongyang and Lv, Chen},
     journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
     title={Reinforced Refinement With Self-Aware Expansion for End-to-End Autonomous Driving},
