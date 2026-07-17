@@ -808,20 +808,39 @@ class NAVFormer(MVXTwoStageDetector):
 
         chosen_indices = plan_results['selected_indices']
         b = img.shape[0]
+        use_online_pdm = getattr(self.planning_head, 'requires_online_pdm_scoring', False)
 
         return_list = []
         for batch_idx in range(b):
             chosen_idx = chosen_indices[batch_idx]
+            if use_online_pdm:
+                # Generated-trajectory heads do not select from the 8192-entry
+                # vocabulary PDM cache. Leave NaN placeholders; dataset.evaluate()
+                # fills real scores from NAVSIM metric_cache.
+                pdm_scores = {
+                    "no_at_fault_collisions": float('nan'),
+                    "drivable_area_compliance": float('nan'),
+                    "ego_progress": float('nan'),
+                    "time_to_collision_within_bound": float('nan'),
+                    "comfort": float('nan'),
+                    "score": float('nan'),
+                }
+            else:
+                # Vocabulary-selection heads directly index the pre-computed
+                # 8192-entry PDM cache.
+                pdm_scores = {
+                    "no_at_fault_collisions": no_at_fault_collisions[0][batch_idx, chosen_idx].item(),
+                    "drivable_area_compliance": drivable_area_compliance[0][batch_idx, chosen_idx].item(),
+                    "ego_progress": ego_progress[0][batch_idx, chosen_idx].item(),
+                    "time_to_collision_within_bound": time_to_collision_within_bound[0][batch_idx, chosen_idx].item(),
+                    "comfort": comfort[0][batch_idx, chosen_idx].item(),
+                    "score": score[0][batch_idx, chosen_idx].item(),
+                }
             pdm_dict = {
-                "token":img_metas[batch_idx][3]['sample_idx'],  # TODO: hard code 3rd frame for current frame
-                "no_at_fault_collisions":no_at_fault_collisions[0][batch_idx, chosen_idx].item(),
-                "drivable_area_compliance":drivable_area_compliance[0][batch_idx, chosen_idx].item(),
-                "ego_progress":ego_progress[0][batch_idx, chosen_idx].item(),
-                "time_to_collision_within_bound":time_to_collision_within_bound[0][batch_idx, chosen_idx].item(),
-                "comfort":comfort[0][batch_idx, chosen_idx].item(),
-                "score":score[0][batch_idx, chosen_idx].item(),
-                'chosen_ind':chosen_idx.item(),
-                'trajectory':plan_results['trajectory'][batch_idx].cpu().numpy(),
+                "token": img_metas[batch_idx][3]['sample_idx'],  # 3rd frame = current frame
+                **pdm_scores,
+                'chosen_ind': chosen_idx.item(),
+                'trajectory': plan_results['trajectory'][batch_idx].cpu().numpy(),
             }
 
             # Calculate ADE / FDE

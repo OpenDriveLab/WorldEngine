@@ -236,14 +236,27 @@ See [AlgEngine Usage Guide](algengine_usage.md#training) for details.
 conda activate algengine
 cd projects/AlgEngine
 
-# Evaluate on test set
+# Evaluate on navtest. DiffusionDrive/GoalFlow are automatically rescored by
+# the official NAVSIM repo after multi-GPU inference.
+export NAVSIM_DEVKIT_ROOT=/path/to/navsim-v1.1
+export NAVSIM_METRIC_CACHE_PATH=/path/to/metric_cache_navtest_v1
+
 ./scripts/e2e_dist_eval.sh \
     configs/worldengine/e2e_vadv2_50pct.py \
     work_dirs/e2e_vadv2_50pct/epoch_20.pth \
     8
 ```
 
-**Time:** ~30 minutes on 8 GPUs
+For selection models, this command finishes after the existing score export.
+For non-selection models, the first CSV contains placeholder PDMS values; the
+final score is written under
+`<checkpoint_dir>/test/<timestamp>_official_pdms/*.csv` by the official NAVSIM
+submission scorer. Inference uses the requested GPUs; official rescoring uses CPU.
+
+Set `NAVSIM_OFFICIAL_RESCORE=never` to export the submission without running the
+official scorer, or run `scripts/e2e_navsim_official_rescore.sh` later.
+
+**Time:** inference is typically ~30 minutes on 8 GPUs; official rescoring adds CPU time.
 
 See [AlgEngine Usage Guide](algengine_usage.md#evaluation) for details.
 

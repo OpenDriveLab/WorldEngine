@@ -205,6 +205,7 @@ Add to your `~/.bashrc` or `~/.zshrc`:
 ```bash
 # AlgEngine Environment Variables
 export NAVSIM_DEVKIT_ROOT="/path/to/your/navsim/v1.1"
+export NAVSIM_METRIC_CACHE_PATH="/path/to/metric_cache_navtest_v1"
 export WORLDENGINE_ROOT="/path/to/WorldEngine"
 export SIMENGINE_ROOT="${WORLDENGINE_ROOT}/projects/SimEngine"
 export ALGENGINE_ROOT="${WORLDENGINE_ROOT}/projects/AlgEngine"
@@ -212,6 +213,11 @@ export NUPLAN_MAPS_ROOT="${WORLDENGINE_ROOT}/data/raw/nuplan/maps"
 
 PYTHONPATH=$WORLDENGINE_ROOT:$SIMENGINE_ROOT:$ALGENGINE_ROOT:$NAVSIM_DEVKIT_ROOT:$PYTHONPATH
 ```
+
+`NAVSIM_METRIC_CACHE_PATH` must point to the full official navtest metric cache,
+including its `metadata/*.csv` index. AlgEngine creates a lightweight,
+submission-filtered metadata index for each non-selection evaluation; it does
+not duplicate the metric-cache payloads.
 
 Apply changes:
 ```bash
@@ -230,5 +236,4 @@ source ~/.bashrc  # or source ~/.zshrc
 | **Use Cases** | Simulation, Rendering, BWM | Training, Evaluation |
 | **Disk Space** | ~10 GB | ~15 GB |
 | **Install Time** | ~30 min | ~45 min (MMCV build) |
-
 

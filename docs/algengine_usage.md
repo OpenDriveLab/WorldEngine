@@ -24,7 +24,7 @@ cd projects/AlgEngine
 # Training (8 GPUs)
 ./scripts/e2e_dist_train.sh <config> <num_gpus> [resume_checkpoint]
 
-# Open-loop evaluation
+# Open-loop evaluation (inference + automatic official NAVSIM rescoring when required)
 ./scripts/e2e_dist_eval.sh <config> <checkpoint> <num_gpus>
 
 # Full train set evaluation (chunked)
@@ -124,7 +124,22 @@ work_dirs/e2e_vadv2_50pct/
 
 ### Open-Loop Evaluation
 
-Evaluate model predictions against ground truth trajectories.
+`e2e_dist_eval.sh` has two stages: multi-GPU model inference and, for
+generated/non-selection planners, official NAVSIM submission rescoring. Do not
+interpret the inference-stage CSV of a non-selection model as its final PDMS.
+
+| Planner type | Examples | `e2e_dist_eval.sh` behavior |
+| --- | --- | --- |
+| Selection model | VADv2, HydraMDP and vocabulary-selection heads | Keeps the model's existing cached/selection scores; no second scoring pass in `auto` mode. |
+| Non-selection / generated trajectory model | DiffusionDrive, GoalFlow | Exports a NAVSIM submission, filters the official metric-cache index to exactly those tokens, then directly runs NAVSIM's `run_pdm_score_from_submission.py`. |
+
+Before evaluating a non-selection model, configure the official NAVSIM v1.1
+repository and the full navtest metric cache:
+
+```bash
+export NAVSIM_DEVKIT_ROOT=/path/to/navsim-v1.1
+export NAVSIM_METRIC_CACHE_PATH=/path/to/metric_cache_navtest_v1
+```
 
 #### Full Test Set Evaluation
 
@@ -141,13 +156,44 @@ cd projects/AlgEngine
 
 **Output:**
 ```
-work_dirs/e2e_vadv2_50pct/
-└── navtest.csv                 # Evaluation results
+<checkpoint_dir>/test/
+├── <timestamp>.csv                         # inference metrics; PDMS is a placeholder for non-selection models
+├── <timestamp>_navsim_submission.pkl       # official NAVSIM submission
+└── <timestamp>_official_pdms/
+    ├── <timestamp>.csv                     # final official NAVSIM PDMS result
+    └── metric_cache_index/metadata/         # submission-filtered index; cache payloads are not copied
 ```
+
+The default `NAVSIM_OFFICIAL_RESCORE=auto` mode inspects the inference CSV and
+only launches the official scorer when PDMS values are placeholders. Overrides:
+
+```bash
+# Force official rescoring, including for a selection model
+NAVSIM_OFFICIAL_RESCORE=always ./scripts/e2e_dist_eval.sh <config> <checkpoint> <gpus>
+
+# Run inference/export only
+NAVSIM_OFFICIAL_RESCORE=never ./scripts/e2e_dist_eval.sh <config> <checkpoint> <gpus>
+```
+
+To rescore an existing submission without repeating model inference:
+
+```bash
+bash scripts/e2e_navsim_official_rescore.sh \
+    /path/to/<timestamp>_navsim_submission.pkl \
+    "$NAVSIM_METRIC_CACHE_PATH"
+```
+
+Official rescoring is CPU-bound; the inference GPU count does not control the
+scorer. The wrapper calls the external NAVSIM repository directly and does not
+reimplement PDMS inside AlgEngine.
 
 #### Rare Navtest Cases Only
 
-Evaluate on known rare navtest cases:
+Evaluate on known rare navtest cases. `navtest_failures` is a subset of
+`navtest`, so non-selection models reuse the same `NAVSIM_METRIC_CACHE_PATH`.
+The script exports a failures-only submission, builds a failures-only metadata
+index over the full navtest cache, and runs the same official scorer in `auto`
+mode.
 
 ```bash
 ./scripts/e2e_dist_eval_navtest_failures.sh \
@@ -158,8 +204,11 @@ Evaluate on known rare navtest cases:
 
 **Output:**
 ```
-work_dirs/e2e_vadv2_50pct/
-└── navtest_failures.csv        # rare navtest cases only
+<checkpoint_dir>/test/
+├── <timestamp>.csv
+├── <timestamp>_navsim_submission.pkl
+└── <timestamp>_official_pdms/
+    └── <timestamp>.csv         # final official failures-subset PDMS
 ```
 
 #### Full Train Set Evaluation
