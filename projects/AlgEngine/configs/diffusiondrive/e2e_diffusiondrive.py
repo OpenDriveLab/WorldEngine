@@ -108,9 +108,9 @@ model = dict(
         relu_before_extra_convs=True,
     ),
     freeze_img_backbone=True,
-    freeze_img_neck=False,
+    freeze_img_neck=True,
     freeze_bn=False,
-    freeze_bev_encoder=False,
+    freeze_bev_encoder=True,
     score_thresh=0.4,
     filter_score_thresh=0.35,
     qim_args=dict(

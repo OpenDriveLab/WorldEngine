@@ -130,11 +130,11 @@ class GridSampleCrossBEVAttention(nn.Module):
     def forward(self, queries, traj_points, bev_feature, spatial_shape):
         bs, num_queries, num_points, _ = traj_points.shape
 
-        # Normalize trajectory points to [-1, 1] for grid_sample.
+        # NavFormer stores physical x along BEV width and physical y along
+        # BEV height, matching grid_sample's (x, y) coordinate order.
         normalized_trajectory = traj_points.clone()
-        normalized_trajectory[..., 0] = normalized_trajectory[..., 0] / self.bev_range_y
-        normalized_trajectory[..., 1] = normalized_trajectory[..., 1] / self.bev_range_x
-        normalized_trajectory = normalized_trajectory[..., [1, 0]]  # swap x and y
+        normalized_trajectory[..., 0] = normalized_trajectory[..., 0] / self.bev_range_x
+        normalized_trajectory[..., 1] = normalized_trajectory[..., 1] / self.bev_range_y
 
         attention_weights = self.attention_weights(queries)
         attention_weights = attention_weights.view(bs, num_queries, num_points).softmax(-1)
@@ -481,10 +481,19 @@ class DiffusionPlanningHead(nn.Module):
         loss(result, gt_pdm_score=None, sdc_planning=..., sdc_planning_mask=...)
             -> dict[str, Tensor]
 
+    ``requires_online_pdm_scoring = True`` signals to NAVFormer.forward_test()
+    that this head's selected_indices live in anchor-space [0, num_anchors) and
+    are NOT valid indices into the 8192-entry vocabulary PDM cache.  PDM sub-
+    scores will be computed online from metric_cache in dataset.evaluate().
+
     The dict returned by ``forward`` contains the generated trajectory
     (``trajectory`` of shape ``(B, 40, 3)``), plus extra intermediate tensors
     consumed by ``loss`` during training.
     """
+
+    # Signals navformer.forward_test() to skip the 8192-vocabulary PDM cache
+    # lookup and defer scoring to dataset.evaluate() via metric_cache.
+    requires_online_pdm_scoring = True
 
     def __init__(
         self,
@@ -515,6 +524,7 @@ class DiffusionPlanningHead(nn.Module):
         trunc_timesteps=8,
         cls_loss_weight=10.0,
         reg_loss_weight=8.0,
+        trajectory_loss_weight=12.0,
         use_nerf=True,
         **kwargs,
     ):
@@ -541,17 +551,9 @@ class DiffusionPlanningHead(nn.Module):
         self.odo_y_min = odo_y_min
         self.odo_y_range = odo_y_range
 
-        # (a) status token encoder (NeRF-style, mirroring TrajScoringHead)
-        if self.use_nerf:
-            self.status_embed = nn.Sequential(
-                nn.Linear(4 + 24 + 2, d_model),
-                nn.ReLU(),
-            )
-        else:
-            self.status_embed = nn.Sequential(
-                nn.Linear(4 + 2 + 2, d_model),
-                nn.ReLU(),
-            )
+        # (a) Original NAVSIM status encoder: 4-D command one-hot +
+        # 2-D velocity + 2-D acceleration.
+        self.status_embed = nn.Linear(8, d_model)
 
         # (b) learnable queries: 1 ego + N agents (DiffusionDrive V2 line 37)
         self._query_embedding = nn.Embedding(num_bounding_boxes + 1, d_model)
@@ -619,6 +621,7 @@ class DiffusionPlanningHead(nn.Module):
 
         # (i) loss
         self.loss_computer = LossComputer(cls_loss_weight, reg_loss_weight)
+        self.trajectory_loss_weight = trajectory_loss_weight
 
     # ------------------------------------------------------------------
     # Trajectory range normalization (x, y only — heading is regressed afresh
@@ -651,44 +654,10 @@ class DiffusionPlanningHead(nn.Module):
 
         Output: ``(B, 1, d_model)``.
         """
-        gt_pre_command_sdc = gt_pre_command_sdc[:, 0, :, 0]
-        sdc_planning_past = sdc_planning_past[:, 0]
-
-        full_cmd = torch.cat([gt_pre_command_sdc, command[:, None]], dim=1).long()
-        cmd_one_hot = F.one_hot(full_cmd, num_classes=4).float()
-
-        full_ego_status = torch.cat([sdc_planning_past, sdc_status[:, None]], dim=1)
-        if self.use_nerf:
-            enc_ego_status = torch.cat(
-                [
-                    cmd_one_hot,
-                    nerf_positional_encoding(full_ego_status[..., :2]),
-                    torch.cos(full_ego_status[..., -1])[..., None],
-                    torch.sin(full_ego_status[..., -1])[..., None],
-                ],
-                dim=-1,
-            )
-        else:
-            enc_ego_status = torch.cat(
-                [
-                    cmd_one_hot,
-                    full_ego_status[..., :2],
-                    torch.cos(full_ego_status[..., -1])[..., None],
-                    torch.sin(full_ego_status[..., -1])[..., None],
-                ],
-                dim=-1,
-            )
-
-        enc_ego_status = enc_ego_status.float()
-        status_encoding = self.status_embed(enc_ego_status)  # (B, 5, d_model)
-
-        mask_past = sdc_planning_mask_past[:, 0, :, 0].float()
-        b = mask_past.shape[0]
-        mask_past = torch.cat([mask_past, torch.zeros((b, 1), device=status_encoding.device)], dim=1)
-        mask_past = mask_past[:, :, None]
-
-        status_token = torch.max(status_encoding * mask_past, dim=1)[0]  # (B, d_model)
-        return status_token.unsqueeze(1)  # (B, 1, d_model)
+        command = command.long()
+        command_one_hot = F.one_hot(command, num_classes=4).to(sdc_status.dtype)
+        status_feature = torch.cat([command_one_hot, sdc_status], dim=-1).float()
+        return self.status_embed(status_feature).unsqueeze(1)
 
     def _prepare_queries(self, bev_feature, status_token):
         """Run the small TF decoder to extract ego_query + agents_query.
@@ -723,6 +692,7 @@ class DiffusionPlanningHead(nn.Module):
         sdc_status=None,
         sdc_planning_mask_past=None,
         gt_pre_command_sdc=None,
+        navigation_goal=None,
     ):
         # bev_embed comes as (H*W, B, C); reshape to (B, C, H, W).
         if bev_embed.dim() == 3 and bev_embed.shape[0] == self.bev_h * self.bev_w:
@@ -885,6 +855,7 @@ class DiffusionPlanningHead(nn.Module):
         return {
             "trajectory": self._expand_to_40(best_reg),
             "trajectory_8": best_reg,
+            "selected_indices": mode_idx,
         }
 
     # ------------------------------------------------------------------
@@ -926,6 +897,6 @@ class DiffusionPlanningHead(nn.Module):
             reg_total = reg_total + reg_loss
 
         return {
-            "loss.diff_cls": cls_total,
-            "loss.diff_reg": reg_total,
+            "loss.diff_cls": self.trajectory_loss_weight * cls_total,
+            "loss.diff_reg": self.trajectory_loss_weight * reg_total,
         }

@@ -17,8 +17,7 @@ class ScorePostProcessor:
 
     def process(self, result):
         plan_idx = result['chosen_ind']
-        plan_traj = self.traj[plan_idx]
-        # output_planning_traj = result['trajectory']     # should be the same
+        plan_traj = result['trajectory']
         return plan_traj, plan_idx
 
     def global_transform(self, plan_traj):

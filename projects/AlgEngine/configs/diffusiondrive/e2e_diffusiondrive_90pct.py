@@ -1,3 +1,6 @@
+"""
+Base IL Training (90%): End-to-end NAVFormer with DiffusionDrive on 90% NavSim data.
+"""
 import os
 
 _base_ = ["../_base_/default_runtime.py"]
@@ -57,7 +60,7 @@ img_root_test = data_root + "sensor_blobs/test"
 ann_file_train = info_root + "nuplan_openscene_navtrain.pkl"
 ann_file_val = info_root + "nuplan_openscene_navtest.pkl"
 ann_file_test = info_root + "nuplan_openscene_navtest.pkl"
-nav_filter_path_train = os.path.join(WORLDENGINE_ROOT, "projects/AlgEngine/configs/navsim_splits/navtrain_split/navtrain.yaml")
+nav_filter_path_train = os.path.join(WORLDENGINE_ROOT, "projects/AlgEngine/configs/navsim_splits/navtrain_split/navtrain_90pct.yaml")
 nav_filter_path_val = os.path.join(WORLDENGINE_ROOT, "projects/AlgEngine/configs/navsim_splits/navtest_split/navtest.yaml")
 nav_filter_path_test = os.path.join(WORLDENGINE_ROOT, "projects/AlgEngine/configs/navsim_splits/navtest_split/navtest.yaml")
 navsim_exp_root = os.getenv("NAVSIM_EXP_ROOT", os.path.join(os.path.dirname(WORLDENGINE_ROOT), "exp"))
@@ -108,9 +111,9 @@ model = dict(
         relu_before_extra_convs=True,
     ),
     freeze_img_backbone=True,
-    freeze_img_neck=False,
+    freeze_img_neck=True,
     freeze_bn=False,
-    freeze_bev_encoder=False,
+    freeze_bev_encoder=True,
     score_thresh=0.4,
     filter_score_thresh=0.35,
     qim_args=dict(

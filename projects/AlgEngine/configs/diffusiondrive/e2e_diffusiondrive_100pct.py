@@ -1,3 +1,6 @@
+"""
+Base IL Training (100%): End-to-end NAVFormer with DiffusionDrive on 100% NavSim data.
+"""
 import os
 
 _base_ = ["../_base_/default_runtime.py"]
@@ -108,9 +111,9 @@ model = dict(
         relu_before_extra_convs=True,
     ),
     freeze_img_backbone=True,
-    freeze_img_neck=False,
+    freeze_img_neck=True,
     freeze_bn=False,
-    freeze_bev_encoder=False,
+    freeze_bev_encoder=True,
     score_thresh=0.4,
     filter_score_thresh=0.35,
     qim_args=dict(

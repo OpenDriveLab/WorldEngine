@@ -720,6 +720,10 @@ class NAVFormer(MVXTwoStageDetector):
 
         bev_embed = outs_track['bev_embed']
 
+        planning_kwargs = {}
+        if getattr(self.planning_head, "uses_navigation_goal", False):
+            planning_kwargs["navigation_goal"] = sdc_planning[:, 0, 7, :2]
+
         plan_results = self.planning_head.forward(
             bev_embed,
             command,
@@ -727,6 +731,7 @@ class NAVFormer(MVXTwoStageDetector):
             sdc_status,
             sdc_planning_mask_past,  # 1 x 4 x 4
             gt_pre_command_sdc, #1*4
+            **planning_kwargs,
         )
         pdm_dict = {
             "no_at_fault_collisions":no_at_fault_collisions,
@@ -797,6 +802,12 @@ class NAVFormer(MVXTwoStageDetector):
 
         bev_embed = outs_track['bev_embed']
 
+        planning_kwargs = {}
+        if getattr(self.planning_head, "uses_navigation_goal", False):
+            planning_kwargs["sample_tokens"] = [
+                meta[3]["sample_idx"] for meta in img_metas
+            ]
+
         plan_results = self.planning_head.forward(
             bev_embed,
             command[0],
@@ -804,6 +815,7 @@ class NAVFormer(MVXTwoStageDetector):
             sdc_status[0],
             sdc_planning_mask_past[0],
             gt_pre_command_sdc[0],
+            **planning_kwargs,
         )
 
         chosen_indices = plan_results['selected_indices']

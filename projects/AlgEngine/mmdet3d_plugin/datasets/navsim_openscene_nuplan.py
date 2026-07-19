@@ -69,6 +69,7 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         history_frame_num=3,
         future_frame_num=8,
         fix_can_bus_rotation=False,
+        diffusiondrive_data_mode=False,
         map_root=None,
         with_velocity=True,
         use_valid_flag=False,
@@ -84,6 +85,7 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         else:
             self.map_root = map_root
         self.fix_can_bus_rotation = fix_can_bus_rotation
+        self.diffusiondrive_data_mode = diffusiondrive_data_mode
         self.nav_filter_path = nav_filter_path
 
         if "navtrain" in os.path.basename(self.nav_filter_path):
@@ -1064,26 +1066,68 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         ).convert_to(self.box_mode_3d)
         gt_sdc_bbox = DC(gt_sdc_bbox, cpu_only=True)
 
-        # ego trajectory in lidar coordinate
-        gt_pre_bbox_sdc_lidar = info["gt_pre_bbox_sdc_lidar"]  # 1 x 4 x 9
-        gt_fut_bbox_sdc_lidar = info["gt_fut_bbox_sdc_lidar"]  # 1 x 12 x 9
+        gt_pre_bbox_sdc_lidar = info["gt_pre_bbox_sdc_lidar"]
+        gt_fut_bbox_sdc_lidar = info["gt_fut_bbox_sdc_lidar"]
+        if self.diffusiondrive_data_mode:
+            # DiffusionDrive follows NAVSIM's ego rear-axle convention, while
+            # the converter stores temporal ego boxes in the lidar frame.
+            lidar2ego = np.asarray(
+                info.get("lidar2ego", np.eye(4)), dtype=np.float64
+            )
+            lidar2ego_yaw = quaternion_yaw(
+                Quaternion(matrix=lidar2ego[:3, :3])
+            )
+
+            def _trajectory_lidar_to_ego(boxes):
+                boxes = np.asarray(boxes).copy()
+                xyz = boxes[..., :3]
+                boxes[..., :3] = (
+                    np.einsum("ij,...j->...i", lidar2ego[:3, :3], xyz)
+                    + lidar2ego[:3, 3]
+                )
+                boxes[..., 6] = (
+                    boxes[..., 6] + lidar2ego_yaw + np.pi
+                ) % (2 * np.pi) - np.pi
+                return boxes
+
+            gt_pre_bbox_sdc_lidar = _trajectory_lidar_to_ego(
+                gt_pre_bbox_sdc_lidar
+            )
+            gt_fut_bbox_sdc_lidar = _trajectory_lidar_to_ego(
+                gt_fut_bbox_sdc_lidar
+            )
 
         # ego trajectory in global coordinate
         gt_pre_bbox_sdc_global = info["gt_pre_bbox_sdc_global"]  # 1 x 4 x 9
         gt_fut_bbox_sdc_global = info["gt_fut_bbox_sdc_global"]  # 1 x 12 x 9
 
-        # ego trajectory mask
         gt_fut_bbox_sdc_mask = info["gt_fut_bbox_sdc_mask"]  # 1 x future_frame_num x 1
+        if self.diffusiondrive_data_mode:
+            # Normalize across navtrain/rollout bool masks and BWM float masks.
+            gt_fut_bbox_sdc_mask = gt_fut_bbox_sdc_mask.astype(np.float32)
         gt_fut_bbox_sdc_mask = np.repeat(gt_fut_bbox_sdc_mask, 2, axis=2)  # 1 x future_frame_num x 2
 
         gt_pre_bbox_sdc_mask = info["gt_pre_bbox_sdc_mask"]  # 1 x history_frame_num x 1
+        if self.diffusiondrive_data_mode:
+            gt_pre_bbox_sdc_mask = gt_pre_bbox_sdc_mask.astype(np.float32)
         gt_pre_bbox_sdc_mask = np.repeat(gt_pre_bbox_sdc_mask, 4, axis=2)  # 1 x history_frame_num x 4
         gt_pre_command_sdc = info["gt_pre_command_sdc"]
+        if self.diffusiondrive_data_mode:
+            # BWM augmentation stores commands as float64.
+            gt_pre_command_sdc = gt_pre_command_sdc.astype(np.int64)
 
         sdc_planning = gt_fut_bbox_sdc_lidar[
             :, :self.planning_steps, [0, 1, 6]
-        ]  # 1 x planning_steps x 3, lidar coordinate, x,y,yaw
+        ]  # 1 x planning_steps x 3; frame selected by diffusiondrive_data_mode
         sdc_planning_mask = gt_fut_bbox_sdc_mask[:, :self.planning_steps]
+
+        # Match the original NAVSIM styled-E2E status feature: current ego
+        # velocity (x, y) and acceleration (x, y). The command is passed
+        # separately and one-hot encoded by each planning head.
+        can_bus = np.asarray(info.get("can_bus", np.zeros(18)))
+        ego_velocity = can_bus[10:12].astype(np.float32)
+        ego_acceleration = can_bus[7:9].astype(np.float32)
+        navsim_status = np.concatenate([ego_velocity, ego_acceleration])
 
         # update output dictionary for ego's prediction
         input_dict.update(
@@ -1093,7 +1137,7 @@ class NavSimOpenSceneE2E(Custom3DDataset):
                 gt_sdc_label=gt_sdc_label,  # DC (tensor[0])
                 gt_sdc_fut_traj=gt_fut_bbox_sdc_lidar[
                     :, :, :2
-                ],  # 1 x 12 x 2, lidar coordinate
+                ],  # 1 x 12 x 2; frame selected by diffusiondrive_data_mode
                 gt_sdc_fut_traj_mask=gt_fut_bbox_sdc_mask,  # 1 x 12 x 2
                 # planning labels
                 command=np.argmax(info["driving_command"]),  # int, change from 1-indexed to 0-indexed
@@ -1105,9 +1149,12 @@ class NavSimOpenSceneE2E(Custom3DDataset):
                 sdc_planning_past=gt_pre_bbox_sdc_lidar[:, :, [0, 1, 6]],
                 sdc_planning_mask_past=gt_pre_bbox_sdc_mask,
                 gt_pre_command_sdc=gt_pre_command_sdc,
-                sdc_status=sdc_status[[0, 1, 6]]
             )
         )
+        if self.diffusiondrive_data_mode:
+            input_dict.update(sdc_status=navsim_status)
+        else:
+            input_dict.update(sdc_status=sdc_status[[0, 1, 6]])
 
         return input_dict
 
