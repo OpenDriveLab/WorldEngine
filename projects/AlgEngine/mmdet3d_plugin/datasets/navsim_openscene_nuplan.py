@@ -195,18 +195,18 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         return data_infos
 
     def load_pdm_infos(self):
+        if self.diffusiondrive_data_mode:
+            self.pdm_dict = {}
+            return
         cache_file = f'{self.pdm_path}.pkl' if self.pdm_path else None
         if cache_file and os.path.isfile(cache_file):
             with open(cache_file, 'rb') as f:
                 self.pdm_dict = pickle.load(f)
             logger.info(f'loaded PDM score cache of {len(self.pdm_dict)} tokens.')
-        else:
-            self.pdm_dict = {}
-            logger.warning(
-                f'PDM score cache not found (path={cache_file}), '
-                'falling back to an empty vocabulary cache. Generated-trajectory '
-                'heads can still be evaluated through online PDM scoring.'
-            )
+            return
+        raise FileNotFoundError(
+            f'PDM score cache not found: {cache_file}'
+        )
 
     def __len__(self):
         return len(self.index_map)
@@ -528,6 +528,8 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         return
 
     def get_pdm_score_info(self, input_dict, index=None, info=None):
+        if self.diffusiondrive_data_mode:
+            return self.get_zero_pdm(input_dict)
         if input_dict['sample_idx'] not in self.pdm_dict:
             logger.warning(f"PDM score not found for token: {input_dict['sample_idx']}")
             return self.get_zero_pdm(input_dict)
@@ -1243,8 +1245,9 @@ class NavSimOpenSceneE2E(Custom3DDataset):
         out_dir=None,
         pipeline=None,
     ):
+        eval_logger = logger if logger is not None else get_logger(__name__)
         if self._requires_official_pdm_rescoring(results):
-            logger.info(
+            eval_logger.info(
                 'Generated trajectories detected; skipping embedded PDM scoring. '
                 'Rescore the exported submission with the official NAVSIM repository.'
             )
