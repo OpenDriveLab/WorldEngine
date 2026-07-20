@@ -160,7 +160,7 @@ cd projects/AlgEngine
 ├── <timestamp>.csv                         # inference metrics; PDMS is a placeholder for non-selection models
 ├── <timestamp>_navsim_submission.pkl       # official NAVSIM submission
 └── <timestamp>_official_pdms/
-    ├── <timestamp>.csv                     # final official NAVSIM PDMS result
+    ├── pdm_scores_merged.csv              # final official NAVSIM PDMS result
     └── metric_cache_index/metadata/         # submission-filtered index; cache payloads are not copied
 ```
 

@@ -727,9 +727,28 @@ class DiffusionPlanningHead(nn.Module):
     # ------------------------------------------------------------------
 
     def _expand_to_40(self, traj_8):
-        """Repeat (B, 8, 3) along time 5x to (B, 40, 3) so [4::5] recovers it."""
-        B = traj_8.shape[0]
-        return traj_8.unsqueeze(2).expand(B, self._num_poses, 5, 3).reshape(B, self._num_poses * 5, 3)
+        """Interpolate 0.5-second poses onto a 0.1-second timeline."""
+        batch_size, num_poses, _ = traj_8.shape
+        start_poses = torch.cat(
+            [traj_8.new_zeros(batch_size, 1, 3), traj_8[:, :-1]],
+            dim=1,
+        )
+        fractions = traj_8.new_tensor([0.2, 0.4, 0.6, 0.8]).view(1, 1, 4, 1)
+        position_delta = (traj_8[..., :2] - start_poses[..., :2]).unsqueeze(2)
+        intermediate_xy = start_poses[..., :2].unsqueeze(2) + fractions * position_delta
+
+        heading_delta = traj_8[..., 2:3] - start_poses[..., 2:3]
+        heading_delta = torch.atan2(torch.sin(heading_delta), torch.cos(heading_delta))
+        intermediate_heading = start_poses[..., 2:3].unsqueeze(2) + fractions * (
+            heading_delta.unsqueeze(2)
+        )
+        intermediate_heading = torch.atan2(
+            torch.sin(intermediate_heading),
+            torch.cos(intermediate_heading),
+        )
+        intermediate = torch.cat([intermediate_xy, intermediate_heading], dim=-1)
+        segments = torch.cat([intermediate, traj_8.unsqueeze(2)], dim=2)
+        return segments.reshape(batch_size, num_poses * 5, 3)
 
     def _forward_train(self, bev_feature, ego_query, agents_query, status_token):
         bs = ego_query.shape[0]
