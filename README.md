@@ -56,7 +56,7 @@
 
 ## News
 - **[2026/10/27]** The `navtrain` and `navtest` cache data on [Hugging Face](https://huggingface.co/datasets/OpenDriveLab/WorldEngine) have been updated. Please re-download the latest cache files if you are using a previously downloaded version. We sincerely apologize to everyone affected by this update, especially those who have already spent time downloading and working with the previous cache files. We are sorry for the additional work this requires and for the disruption to your research.
-- **[2026/09/15]** Stable checkpoints released.
+- **[2026/09/15]** Stable checkpoints released. Download them from [Hugging Face](https://huggingface.co/datasets/OpenDriveLab/WorldEngine/tree/main/data/alg_engine/ckpts).
 - **[2026/06/19]** Paper released on arXiv. See [World Engine: Towards the Era of Post-Training for Autonomous Driving](https://arxiv.org/abs/2606.19836).
 - **[2026/04/09]** Official dataset released. See [OpenDriveLab/WorldEngine](https://huggingface.co/datasets/OpenDriveLab/WorldEngine) or [OpenDriveLab/WorldEngine (ModelScope)](https://www.modelscope.cn/datasets/OpenDriveLab/WorldEngine)
 - **[2026/04/10]** Official code repository established.
