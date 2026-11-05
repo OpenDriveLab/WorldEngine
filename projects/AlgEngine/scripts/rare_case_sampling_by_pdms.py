@@ -29,7 +29,7 @@ import yaml
 
 def load_pdm_result(path: str) -> pd.DataFrame:
     """Load a PDM evaluation CSV and return a DataFrame."""
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, dtype={'token': str})
     required_cols = {"token", "no_at_fault_collisions",
                      "drivable_area_compliance", "ego_progress"}
     missing = required_cols - set(df.columns)

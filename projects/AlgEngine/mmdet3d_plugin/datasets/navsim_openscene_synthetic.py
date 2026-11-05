@@ -53,7 +53,7 @@ class NavSimOpenSceneE2EFineTuneSynthetic(NavSimOpenSceneE2EFineTune):
         plan_dfs = {}
         for folder_name in self.folder_names:
             # Load plan_idx file
-            plan_df = pd.read_csv(self.syn_pdm_path + f"/{folder_name}/plan_idx.csv")
+            plan_df = pd.read_csv(self.syn_pdm_path + f"/{folder_name}/plan_idx.csv", dtype={'prefix': str})
             plan_dfs[folder_name] = plan_df
 
             folder_data_infos = []

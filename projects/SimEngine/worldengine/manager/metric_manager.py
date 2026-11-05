@@ -399,7 +399,7 @@ class MetricManager(BaseManager):
         # Check if CSV already exists for resume functionality
         new_score_row = self.pdm_scores_list[-1]
         if os.path.exists(averages_csv_path):
-            existing_df = pd.read_csv(averages_csv_path)
+            existing_df = pd.read_csv(averages_csv_path, dtype={'token': str})
             # Remove the last row (overall_average)
             if len(existing_df) > 0 and existing_df.iloc[-1]['token'] == 'overall_average':
                 existing_df = existing_df.iloc[:-1]

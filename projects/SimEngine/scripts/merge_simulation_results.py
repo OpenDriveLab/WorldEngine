@@ -31,8 +31,8 @@ def main():
         all_dfs = []
         for i in range(8):
             split_csv = os.path.join(merged_base, f"split_{i}/plan_traj/plan_idx.csv")
-            # Read all rows except header and last row (overall_average)
-            df_split = pd.read_csv(split_csv)
+            # Preserve scene identifiers that resemble numbers or scientific notation.
+            df_split = pd.read_csv(split_csv, dtype={'prefix': str})
             all_dfs.append(df_split)
         merged_df = pd.concat(all_dfs, ignore_index=True)
         merged_df.to_csv(merged_csv_path, index=False)
@@ -47,7 +47,7 @@ def main():
     all_dfs = []
     for i in range(8):
         split_csv = os.path.join(merged_base, f"split_{i}/WE_output/openscene_format/all_scenes_pdm_averages_{REACT_TYPE}.csv")
-        df_split = pd.read_csv(split_csv, skipfooter=1, engine='python')
+        df_split = pd.read_csv(split_csv, skipfooter=1, engine='python', dtype={'token': str})
         all_dfs.append(df_split)
     merged_df = pd.concat(all_dfs, ignore_index=True)
 
@@ -66,7 +66,7 @@ def main():
         # skip if dense reward not computed
         if not os.path.exists(split_csv):
             continue
-        df_split = pd.read_csv(split_csv)
+        df_split = pd.read_csv(split_csv, dtype={'token': str})
         all_dfs.append(df_split)
     if len(all_dfs) > 0:
         merged_df = pd.concat(all_dfs, ignore_index=True)
